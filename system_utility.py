@@ -20,14 +20,13 @@ def create_directory(path):
 
 
 def set_logger(args, global_round):
-    create_directory("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/logs/")
+    create_directory(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/logs/")
 
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(message)s')
 
-    file_handler = logging.FileHandler(
-        LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/logs/" + str(global_round) + "_" + SHARD_ID + "_" + "worker(" + str(NUM_OF_WORKER) + "|" + str(NUM_OF_MALICIOUS_WORKER) + ")" + "_batch(" + str(BATCH_SIZE) + ")" + "_rate(" + str(LEARNING_RATE) + ")" + ".log")
+    file_handler = logging.FileHandler(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/logs/" + str(global_round) + "_" + SHARD_ID + "_" + "worker(" + str(NUM_OF_WORKER) + "|" + str(NUM_OF_MALICIOUS_WORKER) + ")" + "_batch(" + str(BATCH_SIZE) + ")" + "_rate(" + str(LEARNING_RATE) + ")" + ".log")
     file_handler.setFormatter(formatter)
 
     logger.addHandler(file_handler)
@@ -44,18 +43,18 @@ def set_global_round(args):
     global_round = 0
 
     # set global round
-    if not os.path.exists("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G0"):
+    if not os.path.exists(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G1"):
         print("[ ==================== Global Round: 0 ==================== ]")
         try:
-            os.makedirs("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G0")
+            os.makedirs(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G1")
         except OSError:
             print('Error: Creating global model directory')
     else:
-        rounds = os.listdir("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model")
+        rounds = os.listdir(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model")
         rounds = [int(round.strip("G")) for round in rounds if round.startswith("G")]
         try:
             current_round = max(rounds)
-            os.makedirs("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(current_round + 1))
+            os.makedirs(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(current_round + 1))
         except OSError:
             print('Error: Creating global model {0:2} directory'.format(current_round + 1))
 
@@ -81,7 +80,7 @@ def get_node_color_and_size(G):
 
 
 def plot_DAG(args, global_round, tangle):
-    create_directory("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/graph/")
+    create_directory(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/graph/")
 
     # Get edge_list
     frm, to = zip(*[(i, j) for i, edges in tangle.edges.items() for j in edges])
@@ -96,8 +95,7 @@ def plot_DAG(args, global_round, tangle):
 
     nx.draw(G, labels=mapping, node_color=node_colors, node_size=node_sizes, pos=nx.fruchterman_reingold_layout(G))
     plt.title("DAG")
-    plt.savefig(
-        LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/graph/" + str(global_round) + "_" + SHARD_ID + "_" + "worker(" + str(NUM_OF_WORKER) + "|" + str(NUM_OF_MALICIOUS_WORKER) + ")" + "_batch(" + str(BATCH_SIZE) + ")" + "_rate(" + str(LEARNING_RATE) + ")" + ".png")
+    plt.savefig(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/graph/" + str(global_round) + "_" + SHARD_ID + "_" + "worker(" + str(NUM_OF_WORKER) + "|" + str(NUM_OF_MALICIOUS_WORKER) + ")" + "_batch(" + str(BATCH_SIZE) + ")" + "_rate(" + str(LEARNING_RATE) + ")" + ".png")
 
 
 def central_difference(data):

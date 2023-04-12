@@ -5,14 +5,16 @@ from collections import OrderedDict
 from tqdm import tqdm
 import numpy as np
 from scipy.stats import beta
+import pickle
 # ---------- Learning library ---------- #
 import torch
 
 # ----------- Custom library ----------- #
 from data_loader import worker_dataLoader, sourceDataLoader
-from system_utility import print_log, central_difference
+from system_utility import print_log, central_difference, create_directory
 from learning_utility import get_network, model_weight_to_vector, gaussian_noise
 from conf.global_settings import LEARNING_RATE, BATCH_SIZE, LOG_DIR, DATA_TYPE, POISONED_ATTACK_RATE, CDF_LOWER_BOUND
+
 warnings.filterwarnings(action='ignore')
 
 
@@ -35,16 +37,16 @@ class Worker:
         self.peer_projection_variation = {}
         self.peer_black_list = []
         """ 
-        if global_round - 1 >= 0:
-            print("Load previous global model")
-            self.model.load_state_dict(torch.load("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(global_round - 1) + "/aggregation.pt"), strict=True)
-            self.pre_global_model.load_state_dict(torch.load("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(global_round - 1) + "/aggregation.pt"), strict=True)
+        if global_round - 1 > 0:
+            # self.model.load_state_dict(torch.load("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(global_round - 1) + "/aggregation.pt"), strict=True)
+            # self.pre_global_model.load_state_dict(torch.load("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(global_round - 1) + "/aggregation.pt"), strict=True)
+            with open(LOG_DIR + "/" + DATA_TYPE + "/" + self.args.net + "/tracking_data/T" + str(global_round - 1) + "/" + self.worker_id + "_tracker.pkl", 'rb') as f:
+                self.peer_tracker = pickle.load(f)
+            with open(LOG_DIR + "/" + DATA_TYPE + "/" + self.args.net + "/tracking_data/T" + str(global_round - 1) + "/" + self.worker_id + "_black_list.pkl", 'rb') as f:
+                self.peer_black_list = pickle.load(f)
         """
-
-
     def get_model(self):
         return self.model
-
 
     def train_model(self, epoch):
         print("Training model")
@@ -70,7 +72,6 @@ class Worker:
 
         return self.model
 
-
     @torch.no_grad()
     def evaluate_model(self, model):
         model.eval()
@@ -94,7 +95,6 @@ class Worker:
 
         return correct.float() / total_samples
 
-
     def aggregation(self, *models):
         aggregation_model = get_network(self.args)
         aggregation_model_dict = OrderedDict()
@@ -109,7 +109,6 @@ class Worker:
         aggregation_model.load_state_dict(aggregation_model_dict)
 
         return aggregation_model
-
 
     def model_poisoning_attack(self, rate=POISONED_ATTACK_RATE):
         print_log(self.logger, "Model poisoning attack")
@@ -142,7 +141,6 @@ class Worker:
 
         return self.model
 
-
     def model_projection(self):
         # local model을 이전 global model에 Progjction
         local_model_vector = model_weight_to_vector(self.model)
@@ -155,13 +153,13 @@ class Worker:
 
         return projection_length
 
-
     def update_peer_change_rate(self):
         for worker_id, projection_values in self.peer_tracker.items():
             sorted_projection_list = sorted(projection_values.values())
             worker_change_rate = np.round(central_difference(sorted_projection_list), 4)
             self.peer_projection_variation[worker_id] = worker_change_rate
 
+        print(self.peer_tracker)
         # print(self.peer_projection_variation)
 
     def predict_malicious_worker(self):
@@ -184,5 +182,11 @@ class Worker:
         else:
             print("< Not trackable >")
 
+    def save_tracker(self, global_round):
+        create_directory(LOG_DIR + "/" + DATA_TYPE + "/" + self.args.net + "/tracking_data/T" + str(global_round))
+        with open(LOG_DIR + "/" + DATA_TYPE + "/" + self.args.net + "/tracking_data/T" + str(global_round) + "/" + self.worker_id + "_tracker.pkl", 'wb') as f:
+            pickle.dump(self.peer_tracker, f)
 
+        with open(LOG_DIR + "/" + DATA_TYPE + "/" + self.args.net + "/tracking_data/T" + str(global_round) + "/" + self.worker_id + '_black_list.pkl', 'wb') as f:
+            pickle.dump(self.peer_black_list, f)
 

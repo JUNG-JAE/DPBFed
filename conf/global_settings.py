@@ -24,7 +24,7 @@ CDF_LOWER_BOUND = 0.7
 
 # ----------- System parameters ----------- #
 HASH_LENGTH = 8
-TIME = 60
+TIME = 20
 TRANSACTION_PER_MINUTE = 0.13 * NUM_OF_WORKER
 LOG_DIR = "./runs"
 

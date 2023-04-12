@@ -46,9 +46,12 @@ if __name__ == '__main__':
 
             projection_value = round(worker.model_projection().item(), 4)
 
-            dag.generate_transactions(timestamp=minute, worker=worker, payload={"modle": worker_model, "projection": projection_value})
+            dag.generate_transactions(timestamp=minute, worker=worker, payload={"model": worker_model, "projection": projection_value})
             print(" ")
 
         print(" ")
 
+    for worker in workers:
+        worker.save_tracker(global_round)
+    dag.save_global_model()
     plot_DAG(args, global_round, dag)

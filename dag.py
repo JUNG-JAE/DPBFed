@@ -9,26 +9,27 @@ import torch
 from learning_utility import get_network
 from system_utility import print_log
 from transaction import transactionBlock as TX
-from conf.global_settings import HASH_LENGTH, LOG_DIR, DATA_TYPE, SEARCH_SPACE_SIZE
+from conf.global_settings import HASH_LENGTH, LOG_DIR, DATA_TYPE, SEARCH_SPACE_SIZE, TIME
 
 
 class DAG:
     def __init__(self, args, global_round):
+        self.args = args
         self.genesis_tx_hash = token_hex(HASH_LENGTH)
         self.pre_global_model = get_network(args)
-        """ 
-        if global_round - 1 >= 0:
+        self.global_round = global_round
+        """ """
+        if self.global_round - 1 > 0:
             print("Load previous global model")
             self.pre_global_model.load_state_dict(torch.load("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(global_round - 1) + "/aggregation.pt"), strict=True)
 
             self.transaction_pool = {self.genesis_tx_hash: TX(self.genesis_tx_hash, timestamp=0, previous_hashes=None, approved_tx=[], tx_owner_id="genesis", payload={"model": self.pre_global_model, "projection": 0})}
         else:
-        """
-        self.transaction_pool = {self.genesis_tx_hash: TX(self.genesis_tx_hash, timestamp=0, previous_hashes=None, approved_tx=[], tx_owner_id="genesis", payload={"model": self.pre_global_model, "projection": 0})}
 
-        self.edges = {self.genesis_tx_hash: []}
-        self.reverse_edges = {self.genesis_tx_hash: []}
-        self.worker_cumulative_weight_dict = {}
+            self.transaction_pool = {self.genesis_tx_hash: TX(self.genesis_tx_hash, timestamp=0, previous_hashes=None, approved_tx=[], tx_owner_id="genesis", payload={"model": self.pre_global_model, "projection": 0})}
+            self.edges = {self.genesis_tx_hash: []}
+            self.reverse_edges = {self.genesis_tx_hash: []}
+            self.worker_cumulative_weight_dict = {}
 
     def add_transaction(self, transaction: TX):
         self.transaction_pool[transaction.tx_hash] = transaction
@@ -50,8 +51,9 @@ class DAG:
                 tips = self.random_tip_selection(worker, time)
                 return tips
             else:
-                self.projection_based_selection(worker, time)
-                return list(random.sample(set(list(self.transaction_pool.keys())[-2:]), 2))
+                tips = self.random_tip_selection(worker, time)
+                # tips = self.projection_based_selection(worker, time)
+                return tips
 
     def update_cumulative_weights(self, current_node):
         stack = [current_node]
@@ -83,7 +85,7 @@ class DAG:
         searched_tx = [tx for key_hash, tx in self.transaction_pool.items() if tx.timestamp in search_space_time]
 
         for tx in searched_tx:
-            print_log(worker.logger, f"TX hash: {tx.tx_hash} | Time: {tx.timestamp:2} | Own: {tx.tx_owner_id:8} | Projection {tx.payload['projection']:.2f}")
+            print_log(worker.logger, f"TX hash: {tx.tx_hash} | Time: {tx.timestamp:2} | Own: {tx.tx_owner_id:8} | Projection {tx.payload['projection']:.2f} | Accuracy 0")
 
         randomly_selected_tips = random.sample(searched_tx, 2)
 
@@ -121,7 +123,7 @@ class DAG:
                 owner_id = tx_info.tx_owner_id
 
                 if owner_id != "genesis":
-                    tx_timestamp = tx_info.timestamp
+                    tx_timestamp = tx_info.timestamp + (TIME * self.global_round)
                     tx_projection = tx_info.payload['projection']
                     worker.peer_tracker.setdefault(owner_id, {})[tx_timestamp] = tx_projection
 
@@ -140,4 +142,30 @@ class DAG:
         sorted_tx = sorted(tx_accuracy.items(), key=lambda item: item[1], reverse=True)
         top_2_max_accuracy_tx = sorted_tx[:2]
 
-        print(top_2_max_accuracy_tx)
+        print("{0} -> {1} ({2})".format(worker.worker_id, self.transaction_pool[top_2_max_accuracy_tx[0][0]].tx_owner_id, top_2_max_accuracy_tx[0][0]))
+        print("{0} -> {1} ({2})".format(worker.worker_id, self.transaction_pool[top_2_max_accuracy_tx[1][0]].tx_owner_id, top_2_max_accuracy_tx[1][0]))
+
+        return [top_2_max_accuracy_tx[0][0], top_2_max_accuracy_tx[1][0]]
+
+    def save_global_model(self):
+        valid_tx = [tx for tx in self.transaction_pool.values() if tx.timestamp >= (TIME - SEARCH_SPACE_SIZE)]
+        random.shuffle(valid_tx)
+
+        maximum_transaction_hash = None
+        maximum_model_site_num = 0
+
+        for tx in valid_tx:
+            if tx.tx_hash in self.reverse_edges:
+                site_num = len(self.reverse_edges[tx.tx_hash])
+            else:
+                site_num = 0
+            if site_num > maximum_model_site_num:
+                maximum_model_site_num = site_num
+                maximum_transaction_hash = tx.tx_hash
+            print("{0}, time: {1}, site {2}".format(tx.tx_owner_id, tx.timestamp, site_num))
+
+        print("maximum model({0}): {1}, site: {2}".format(maximum_transaction_hash, self.transaction_pool[maximum_transaction_hash].tx_owner_id, maximum_model_site_num))
+
+        shard_model = self.transaction_pool[maximum_transaction_hash].payload['model']
+
+        torch.save(shard_model.state_dict(), LOG_DIR + "/" + DATA_TYPE + "/" + self.args.net + "/global_model/G" + str(self.global_round) + "/aggregation.pt")
