@@ -5,6 +5,7 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import logging
+import pathlib
 
 # ----------- Custom library ----------- #
 from conf.global_settings import TRANSACTION_PER_MINUTE, TIME, LOG_DIR, SHARD_ID, DATA_TYPE, NUM_OF_WORKER, NUM_OF_MALICIOUS_WORKER, BATCH_SIZE, LEARNING_RATE
@@ -40,26 +41,21 @@ def print_log(logger, msg):
 
 
 def set_global_round(args):
-    global_round = 0
+    global_round_path = pathlib.Path(LOG_DIR) / DATA_TYPE / args.net / "global_model"
 
-    # set global round
-    if not os.path.exists(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G1"):
+    if not global_round_path.exists():
         print("[ ==================== Global Round: 0 ==================== ]")
-        try:
-            os.makedirs(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G1")
-        except OSError:
-            print('Error: Creating global model directory')
+        global_round = 1
     else:
-        rounds = os.listdir(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model")
-        rounds = [int(round.strip("G")) for round in rounds if round.startswith("G")]
-        try:
-            current_round = max(rounds)
-            os.makedirs(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(current_round + 1))
-        except OSError:
-            print('Error: Creating global model {0:2} directory'.format(current_round + 1))
+        rounds = [int(p.name[1:]) for p in global_round_path.glob("G*")]
+        global_round = max(rounds) + 1
+        print(f"[ ==================== Global Round: {global_round:2} ==================== ]")
 
-        global_round = current_round + 1
-        print("[ ==================== Global Round: {0:2} ==================== ]".format(global_round))
+    new_round_path = global_round_path / f"G{global_round}"
+    try:
+        new_round_path.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        print(f"Error: Creating global model {global_round:2} directory")
 
     return global_round
 

@@ -27,12 +27,12 @@ if __name__ == '__main__':
         workers.append(worker)
 
     poisson = poisson_distribution()
-    dag = DAG(args, global_round)
+    dag = DAG(args, logger, global_round)
 
-    print_log(logger, "Total num of transaction: {0:3}".format(sum(poisson)))
+    print_log(logger, f"Total num of transaction: {sum(poisson):3}\n")
 
     for minute in range(1, TIME + 1):
-        print_log(logger, "==================== Time:{0:2} (min) ====================".format(minute))
+        print_log(logger, f"==================== Time:{minute:2} (min) ====================")
         num_of_round_transaction = poisson[minute - 1]
         workers_of_round = random.sample(workers, num_of_round_transaction)
         print_log(logger, "Transaction creator worker: {0}".format([worker.worker_id for worker in workers_of_round]))

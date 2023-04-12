@@ -13,23 +13,25 @@ from conf.global_settings import HASH_LENGTH, LOG_DIR, DATA_TYPE, SEARCH_SPACE_S
 
 
 class DAG:
-    def __init__(self, args, global_round):
+    def __init__(self, args, logger, global_round):
         self.args = args
+        self.logger = logger
         self.genesis_tx_hash = token_hex(HASH_LENGTH)
-        self.pre_global_model = get_network(args)
+        self.pre_global_model = get_network(self.args)
         self.global_round = global_round
-        """ """
+
         if self.global_round - 1 > 0:
-            print("Load previous global model")
-            self.pre_global_model.load_state_dict(torch.load("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(global_round - 1) + "/aggregation.pt"), strict=True)
+            print_log(self.logger, "DAG: Load previous global model")
+            model_path = f"./{LOG_DIR}/{DATA_TYPE}/{args.net}/global_model/G{self.global_round - 1}/aggregation.pt"
+            self.pre_global_model.load_state_dict(torch.load(model_path), strict=True)
 
-            self.transaction_pool = {self.genesis_tx_hash: TX(self.genesis_tx_hash, timestamp=0, previous_hashes=None, approved_tx=[], tx_owner_id="genesis", payload={"model": self.pre_global_model, "projection": 0})}
-        else:
+        genesis_payload = {"model": self.pre_global_model, "projection": 0}
+        genesis_tx = TX(self.genesis_tx_hash, timestamp=0, previous_hashes=None, approved_tx=[], tx_owner_id="genesis", payload=genesis_payload)
+        self.transaction_pool = {self.genesis_tx_hash: genesis_tx}
 
-            self.transaction_pool = {self.genesis_tx_hash: TX(self.genesis_tx_hash, timestamp=0, previous_hashes=None, approved_tx=[], tx_owner_id="genesis", payload={"model": self.pre_global_model, "projection": 0})}
-            self.edges = {self.genesis_tx_hash: []}
-            self.reverse_edges = {self.genesis_tx_hash: []}
-            self.worker_cumulative_weight_dict = {}
+        self.edges = {self.genesis_tx_hash: []}
+        self.reverse_edges = {self.genesis_tx_hash: []}
+        self.worker_cumulative_weight_dict = {}
 
     def add_transaction(self, transaction: TX):
         self.transaction_pool[transaction.tx_hash] = transaction
@@ -146,7 +148,7 @@ class DAG:
         print("{0} -> {1} ({2})".format(worker.worker_id, self.transaction_pool[top_2_max_accuracy_tx[1][0]].tx_owner_id, top_2_max_accuracy_tx[1][0]))
 
         return [top_2_max_accuracy_tx[0][0], top_2_max_accuracy_tx[1][0]]
-
+    """ 
     def save_global_model(self):
         valid_tx = [tx for tx in self.transaction_pool.values() if tx.timestamp >= (TIME - SEARCH_SPACE_SIZE)]
         random.shuffle(valid_tx)
@@ -169,3 +171,19 @@ class DAG:
         shard_model = self.transaction_pool[maximum_transaction_hash].payload['model']
 
         torch.save(shard_model.state_dict(), LOG_DIR + "/" + DATA_TYPE + "/" + self.args.net + "/global_model/G" + str(self.global_round) + "/aggregation.pt")
+    """
+    def save_global_model(self):
+        valid_tx = [tx for tx in self.transaction_pool.values() if tx.timestamp >= (TIME - SEARCH_SPACE_SIZE)]
+        # random.shuffle(valid_tx)
+
+        maximum_transaction = max(valid_tx, key=lambda tx: len(self.reverse_edges.get(tx.tx_hash, [])))
+        maximum_model_site_num = len(self.reverse_edges.get(maximum_transaction.tx_hash, []))
+
+        for tx in valid_tx:
+            site_num = len(self.reverse_edges.get(tx.tx_hash, []))
+            print(f"{tx.tx_owner_id}, time: {tx.timestamp}, site {site_num}")
+
+        print(f"maximum model({maximum_transaction.tx_hash}): {maximum_transaction.tx_owner_id}, site: {maximum_model_site_num}")
+
+        shard_model = maximum_transaction.payload['model']
+        torch.save(shard_model.state_dict(), f"{LOG_DIR}/{DATA_TYPE}/{self.args.net}/global_model/G{self.global_round}/aggregation.pt")
