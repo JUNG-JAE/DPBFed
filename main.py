@@ -38,18 +38,18 @@ if __name__ == '__main__':
         print_log(logger, "Transaction creator worker: {0}".format([worker.worker_id for worker in workers_of_round]))
 
         for worker in workers_of_round:
-            print("<------------ {0} invoke transaction ------------>".format(worker.worker_id))
+            print_log(logger, f"<--------- {worker.worker_id:8} invoke transaction --------->")
             if worker.malicious_worker:
                 worker_model = worker.model_poisoning_attack()
             else:
                 worker_model = worker.train_model(LEARNING_EPOCH)
 
             projection_value = round(worker.model_projection().item(), 4)
-
             dag.generate_transactions(timestamp=minute, worker=worker, payload={"model": worker_model, "projection": projection_value})
-            print(" ")
 
-        print(" ")
+            print_log(logger, " ")
+
+        print_log(logger, " ")
 
     for worker in workers:
         worker.save_tracker(global_round)

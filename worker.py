@@ -36,25 +36,29 @@ class Worker:
         self.peer_tracker = {}
         self.peer_projection_variation = {}
         self.peer_black_list = []
-        """ 
+        """ """
         if global_round - 1 > 0:
-            # self.model.load_state_dict(torch.load("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(global_round - 1) + "/aggregation.pt"), strict=True)
-            # self.pre_global_model.load_state_dict(torch.load("./" + LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/global_model/G" + str(global_round - 1) + "/aggregation.pt"), strict=True)
-            with open(LOG_DIR + "/" + DATA_TYPE + "/" + self.args.net + "/tracking_data/T" + str(global_round - 1) + "/" + self.worker_id + "_tracker.pkl", 'rb') as f:
+            self.model.load_state_dict(torch.load(f"./{LOG_DIR}/{DATA_TYPE}/{args.net}/global_model/G{global_round - 1}/aggregation.pt"), strict=True)
+            self.pre_global_model.load_state_dict(torch.load(f"./{LOG_DIR}/{DATA_TYPE}/{args.net}/global_model/G{global_round - 1}/aggregation.pt"), strict=True)
+
+            with open(f"{LOG_DIR}/{DATA_TYPE}/{args.net}/tracking_data/T{global_round - 1}/{self.worker_id}_tracker.pkl", 'rb') as f:
                 self.peer_tracker = pickle.load(f)
-            with open(LOG_DIR + "/" + DATA_TYPE + "/" + self.args.net + "/tracking_data/T" + str(global_round - 1) + "/" + self.worker_id + "_black_list.pkl", 'rb') as f:
+
+            with open(f"{LOG_DIR}/{DATA_TYPE}/{args.net}/tracking_data/T{global_round - 1}/{self.worker_id}_black_list.pkl", 'rb') as f:
                 self.peer_black_list = pickle.load(f)
-        """
+
     def get_model(self):
         return self.model
 
     def train_model(self, epoch):
-        print("Training model")
+        self.total_training_epoch += epoch
+        print_log(self.logger, f"Training model epoch: {epoch} | total training epoch: {self.total_training_epoch}")
 
         self.model.train()
 
         for epoch in range(1, epoch + 1):
             progress = tqdm(total=len(self.train_loader.dataset), ncols=100)
+            avg_loss = 0
 
             for images, labels in self.train_loader:
                 if self.args.gpu:
@@ -66,8 +70,10 @@ class Worker:
                 loss.backward()
                 self.optimizer.step()
 
+                avg_loss += loss.item() / len(self.train_loader.dataset)
                 progress.update(BATCH_SIZE)
 
+            print_log(self.logger, f"Epoch {epoch} average loss: {avg_loss}")
             progress.close()
 
         return self.model
@@ -91,8 +97,6 @@ class Worker:
             _, preds = outputs.max(1)
             correct += preds.eq(labels).sum()
 
-        # print('Accuracy: {:.4f}, Average loss: {:.4f}'.format(correct.float() * 100 / total_samples, test_loss / total_samples))
-
         return correct.float() / total_samples
 
     def aggregation(self, *models):
@@ -107,6 +111,8 @@ class Worker:
                     aggregation_model_dict[layer] += 1 / len(models) * model.state_dict()[layer]
 
         aggregation_model.load_state_dict(aggregation_model_dict)
+
+        self.model = aggregation_model
 
         return aggregation_model
 
@@ -159,7 +165,7 @@ class Worker:
             worker_change_rate = np.round(central_difference(sorted_projection_list), 4)
             self.peer_projection_variation[worker_id] = worker_change_rate
 
-        print(self.peer_tracker)
+        # print(self.peer_tracker)
         # print(self.peer_projection_variation)
 
     def predict_malicious_worker(self):
@@ -180,7 +186,7 @@ class Worker:
                 if x_val > CDF_LOWER_BOUND and worker_id not in self.peer_black_list:
                     self.peer_black_list.append(worker_id)
         else:
-            print("< Not trackable >")
+            print_log(self.logger, "< Not trackable >")
 
     def save_tracker(self, global_round):
         create_directory(LOG_DIR + "/" + DATA_TYPE + "/" + self.args.net + "/tracking_data/T" + str(global_round))

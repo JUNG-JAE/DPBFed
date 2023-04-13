@@ -25,7 +25,8 @@ def set_logger(args, global_round):
 
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    formatter = logging.Formatter('%(message)s')
+    # formatter = logging.Formatter('%(asctime)s - %(message)s')
 
     file_handler = logging.FileHandler(LOG_DIR + "/" + DATA_TYPE + "/" + args.net + "/logs/" + str(global_round) + "_" + SHARD_ID + "_" + "worker(" + str(NUM_OF_WORKER) + "|" + str(NUM_OF_MALICIOUS_WORKER) + ")" + "_batch(" + str(BATCH_SIZE) + ")" + "_rate(" + str(LEARNING_RATE) + ")" + ".log")
     file_handler.setFormatter(formatter)
