@@ -10,7 +10,7 @@ import pickle
 import torch
 
 # ----------- Custom library ----------- #
-from data_loader import worker_dataLoader, sourceDataLoader
+from data_loader import worker_dataloader, source_dataloader
 from system_utility import print_log, central_difference, create_directory
 from learning_utility import get_network, model_weight_to_vector, gaussian_noise
 from conf.global_settings import LEARNING_RATE, BATCH_SIZE, LOG_DIR, DATA_TYPE, POISONED_ATTACK_RATE, CDF_LOWER_BOUND
@@ -25,8 +25,8 @@ class Worker:
         self.malicious_worker = malicious
         self.total_training_epoch = 0
         self.approve_list = {}
-        # self.train_loader, self.test_loader = worker_dataLoader(worker_id)
-        self.train_loader, self.test_loader = sourceDataLoader()
+        # self.train_loader, self.test_loader = worker_dataloader(worker_id)
+        self.train_loader, self.test_loader = source_dataloader()
         self.model = get_network(args)
         self.pre_global_model = get_network(args)
         self.loss_function = torch.nn.CrossEntropyLoss()
@@ -73,7 +73,7 @@ class Worker:
                 avg_loss += loss.item() / len(self.train_loader.dataset)
                 progress.update(BATCH_SIZE)
 
-            print_log(self.logger, f"Epoch {epoch} average loss: {avg_loss}")
+            print_log(self.logger, f"Epoch {epoch} average loss: {avg_loss:.4f}")
             progress.close()
 
         return self.model
