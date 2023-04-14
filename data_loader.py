@@ -6,8 +6,8 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from conf.global_settings import LABELS, BATCH_SIZE, DATA_TYPE, CHANNEL_SIZE
 
-
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,) * CHANNEL_SIZE, (0.5,) * CHANNEL_SIZE)])
+
 
 class UserDataLoader(Dataset):
     def __init__(self, data_path_list, classes, transform=None):

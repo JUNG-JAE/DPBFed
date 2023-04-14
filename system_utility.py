@@ -45,7 +45,7 @@ def set_global_round(args):
     global_round_path = pathlib.Path(LOG_DIR) / DATA_TYPE / args.net / "global_model"
 
     if not global_round_path.exists():
-        print("[ ==================== Global Round: 0 ==================== ]")
+        print("[ ==================== Global Round: 1 ==================== ]")
         global_round = 1
     else:
         rounds = [int(p.name[1:]) for p in global_round_path.glob("G*")]

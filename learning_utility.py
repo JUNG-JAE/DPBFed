@@ -98,9 +98,9 @@ def get_network(args):
         print('the network name you have entered is not supported yet')
         sys.exit()
 
-    if args.gpu:  # use_gpu
-        torch.cuda.manual_seed_all(777)
-        net = net.cuda()
+    # if args.gpu:  # use_gpu
+    #     torch.cuda.manual_seed_all(777)
+    #     net = net.cuda()
 
     return net
 

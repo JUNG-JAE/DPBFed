@@ -8,8 +8,8 @@ import torch
 # ----------- Custom library ----------- #
 from learning_utility import get_network
 from system_utility import print_log
-from transaction import transactionBlock as TX
-from conf.global_settings import HASH_LENGTH, LOG_DIR, DATA_TYPE, SEARCH_SPACE_SIZE, TIME
+from transaction import TransactionBlock as TX
+from conf.global_settings import HASH_LENGTH, LOG_DIR, DATA_TYPE, SEARCH_SPACE_SIZE, TIME, SHARD_ID
 
 
 class DAG:
@@ -19,7 +19,7 @@ class DAG:
         self.genesis_tx_hash = token_hex(HASH_LENGTH)
         self.pre_global_model = get_network(self.args)
         self.global_round = global_round
-
+        """ """
         if self.global_round - 1 > 0:
             print_log(self.logger, "DAG: Load previous global model")
             model_path = f"./{LOG_DIR}/{DATA_TYPE}/{args.net}/global_model/G{self.global_round - 1}/aggregation.pt"
@@ -118,7 +118,6 @@ class DAG:
         return traversal_order[::-1]
 
     def projection_based_selection(self, worker, time):
-        print_log(worker.logger, "----------- Search space -----------")
         search_space_time = np.clip(range((time - SEARCH_SPACE_SIZE) + 1, time + 1), 0, None)
         searched_tx = [tx for key_hash, tx in self.transaction_pool.items() if tx.timestamp in search_space_time]
 
@@ -129,7 +128,7 @@ class DAG:
                 tx_info = self.transaction_pool[tx_hash]
                 owner_id = tx_info.tx_owner_id
 
-                if owner_id != "genesis":
+                if owner_id not in ["genesis", worker.worker_id]:
                     tx_timestamp = tx_info.timestamp + (TIME * self.global_round)
                     tx_projection = tx_info.payload['projection']
                     worker.peer_tracker.setdefault(owner_id, {})[tx_timestamp] = tx_projection
@@ -138,26 +137,30 @@ class DAG:
         worker.predict_malicious_worker()
 
         print_log(worker.logger, f"Black list: {worker.peer_black_list}")
-        formatted_variation = {k: v.tolist() for k, v in worker.peer_projection_variation.items()}
-        print_log(worker.logger, f"Tracking peer variation: {formatted_variation}")
+        print_log(worker.logger, f"Self variation: {worker.self_projection_variation}")
+        print_log(worker.logger, f"Tracking peer variation:")
+        for worker_id, projection_variation in worker.peer_projection_variation.items():
+            print_log(worker.logger, f"  {worker_id}: {projection_variation}")
+
         filtered_searched_tx = [tx for tx in searched_tx if tx.tx_owner_id not in worker.peer_black_list]
 
-        if len(filtered_searched_tx) <= 1 and self.genesis_tx_hash in filtered_searched_tx:
+        if len(filtered_searched_tx) <= 1:
+            print_log(worker.logger, f"{worker.worker_id} -> genesis ({self.genesis_tx_hash})")
             return [self.genesis_tx_hash, self.genesis_tx_hash]
 
-        tx_accuracy = {}
-        for tx in filtered_searched_tx:
-            accuracy = worker.evaluate_model(tx.payload['model'])
-            print_log(worker.logger, f"TX hash: {tx.tx_hash} | Time: {tx.timestamp:2} | Own: {tx.tx_owner_id:8} | Projection {tx.payload['projection']:4.2f} | Accuracy {accuracy:.2f}")
-            tx_accuracy[tx.tx_hash] = accuracy
+        tx_accuracy = {tx.tx_hash: worker.evaluate_model(tx.payload['model']) for tx in filtered_searched_tx}
+        sorted_tx = sorted(filtered_searched_tx, key=lambda item: tx_accuracy[item.tx_hash], reverse=True)
 
-        sorted_tx = sorted(tx_accuracy.items(), key=lambda item: item[1], reverse=True)
-        top_2_max_accuracy_tx = sorted_tx[:2]
+        print_log(worker.logger, "----------- Search space -----------")
+        for tx in sorted_tx:
+            print_log(worker.logger, f"TX hash: {tx.tx_hash} | Time: {tx.timestamp:2} | Own: {tx.tx_owner_id:8} | Projection {tx.payload['projection']:4.2f} | Accuracy {tx_accuracy[tx.tx_hash]:.2f}")
 
-        print_log(worker.logger, f"{worker.worker_id} -> {self.transaction_pool[top_2_max_accuracy_tx[0][0]].tx_owner_id} ({top_2_max_accuracy_tx[0][0]})")
-        print_log(worker.logger, f"{worker.worker_id} -> {self.transaction_pool[top_2_max_accuracy_tx[1][0]].tx_owner_id} ({top_2_max_accuracy_tx[1][0]})")
+        top_2_max_accuracy_tx_hashes = [sorted_tx[0].tx_hash, sorted_tx[1].tx_hash]
 
-        return [top_2_max_accuracy_tx[0][0], top_2_max_accuracy_tx[1][0]]
+        print_log(worker.logger, f"{worker.worker_id} -> {self.transaction_pool[top_2_max_accuracy_tx_hashes[0]].tx_owner_id} ({top_2_max_accuracy_tx_hashes[0]})")
+        print_log(worker.logger, f"{worker.worker_id} -> {self.transaction_pool[top_2_max_accuracy_tx_hashes[1]].tx_owner_id} ({top_2_max_accuracy_tx_hashes[1]})")
+
+        return top_2_max_accuracy_tx_hashes
 
     def save_global_model(self):
         valid_tx = [tx for tx in self.transaction_pool.values() if tx.timestamp >= (TIME - SEARCH_SPACE_SIZE)]
@@ -172,4 +175,4 @@ class DAG:
         print_log(self.logger, f"maximum model({maximum_transaction.tx_hash}): {maximum_transaction.tx_owner_id}, site: {maximum_model_site_num}")
 
         shard_model = maximum_transaction.payload['model']
-        torch.save(shard_model.state_dict(), f"{LOG_DIR}/{DATA_TYPE}/{self.args.net}/global_model/G{self.global_round}/aggregation.pt")
+        torch.save(shard_model.state_dict(), f"{LOG_DIR}/{DATA_TYPE}/{self.args.net}/global_model/G{self.global_round}/{SHARD_ID}.pt")

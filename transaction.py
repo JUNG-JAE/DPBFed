@@ -1,6 +1,6 @@
 
 
-class transactionBlock:
+class TransactionBlock:
     def __init__(self, tx_hash, timestamp, previous_hashes, approved_tx, tx_owner_id, payload):
         self.tx_hash = tx_hash
         self.own_weight = 1
