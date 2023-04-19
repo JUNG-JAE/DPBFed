@@ -25,8 +25,8 @@ class Worker:
         self.malicious_worker = malicious
         self.total_training_epoch = 0
         self.approve_list = {}
-        # self.train_loader, self.test_loader = worker_dataloader(worker_id)
-        self.train_loader, self.test_loader = source_dataloader()
+        self.train_loader, self.test_loader = worker_dataloader(worker_id)
+        # self.train_loader, self.test_loader = source_dataloader()
         self.model = get_network(args)
         self.pre_global_model = get_network(args)
         self.loss_function = torch.nn.CrossEntropyLoss()
@@ -200,13 +200,17 @@ class Worker:
             # total_mean = round(np.mean(list(worker_change_rate_mean.values())), 4)
 
             self_mean = np.mean(self.self_projection_variation)
+            self_std = np.std(self.self_projection_variation)
             print(f"Self mean: {self_mean:.2f}")
             for worker_id, change_rates in self.peer_projection_variation.items():
-                high_variation = sum(change_rate > self_mean for change_rate in change_rates)
-                row_variation = sum(change_rate < self_mean for change_rate in change_rates)
+                # change inequality
+                high_variation = sum(1 for change_rate in change_rates if change_rate < self_mean - self_std or change_rate > self_mean + self_std)
+                low_variation = sum(1 for change_rate in change_rates if self_mean - self_std <= change_rate <= self_mean + self_std)
+                # high_variation = sum(change_rate < self_mean - self_std or change_rate > self_mean + self_std for change_rate in change_rates)
+                # row_variation = sum(change_rate > self_mean for change_rate in change_rates)
 
                 x = np.linspace(0, 1, 100)
-                beta_cdf = beta.cdf(x, 1 + high_variation, 1 + row_variation)
+                beta_cdf = beta.cdf(x, 1 + high_variation, 1 + low_variation)
                 x_val = x[beta_cdf >= 0.5][0]
 
                 if x_val > CDF_LOWER_BOUND and worker_id not in [self.peer_black_list, self.worker_id]:

@@ -36,7 +36,7 @@ def worker_dataloader(worker_id):
     TRAINING_DATA_SET_PATH = glob('./data/' + DATA_TYPE + "/" + str(worker_id) + '/train/*/*[.png, .jpg]')
     TESTING_DATA_SET_PATH = glob('./data/' + DATA_TYPE + "/" + str(worker_id) + '/test/*/*[.png, .jpg]')
 
-    print("{0} data loaded!".format(worker_id))
+    # print("{0} data loaded!".format(worker_id))
 
     train_loader = torch.utils.data.DataLoader(
         UserDataLoader(TRAINING_DATA_SET_PATH, LABELS, transform=transform),

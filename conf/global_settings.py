@@ -2,7 +2,7 @@
 SHARD_ID = "shard1"
 NUM_OF_WORKER = 10
 NUM_OF_MALICIOUS_WORKER = 4
-SEARCH_SPACE_SIZE = 5
+SEARCH_SPACE_SIZE = 10
 
 # ----------- Worker parameters ----------- #
 DATA_TYPE = "FMNIST"
@@ -17,7 +17,7 @@ elif DATA_TYPE == "CIFAR10":
 
 BATCH_SIZE = 256
 LEARNING_RATE = 0.001
-LEARNING_EPOCH = 1
+LEARNING_EPOCH = 3
 RANDOM_TRAINING = False
 
 # ----------- Attack parameters ----------- #
@@ -27,11 +27,11 @@ GAUSSIAN_MEAN = 0
 GAUSSIAN_STD = 1
 
 # ----------- Defense parameters ----------- #
-CDF_LOWER_BOUND = 0.85
+CDF_LOWER_BOUND = 0.8
 
 # ----------- System parameters ----------- #
 HASH_LENGTH = 8
-TIME = 5
+TIME = 30
 TRANSACTION_PER_MINUTE = 0.13 * NUM_OF_WORKER
 LOG_DIR = "./runs"
 

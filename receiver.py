@@ -18,7 +18,7 @@ def binder(client_socket, addr, base_path):
         data = client_socket.recv(1024)
         data_transferred = 0
 
-        print(f"Server receive file {filename} from {addr}")
+        print(f"Received file {filename} from {addr}")
 
         with open(base_path + filename, 'wb') as f:
             try:
