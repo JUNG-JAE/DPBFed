@@ -1,7 +1,4 @@
 **/venv/
 **/.DS_Store
-**/data/
-**/logs/
 **/.idea
 **/__pycache__/
-**/runs
