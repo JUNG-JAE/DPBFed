@@ -12,7 +12,7 @@ Federated learning allows multiple clients to train a shared model without expos
 
 ## Overview Architecture
 
-![Overview Architecture](./img/main_arch.png)
+![Overview Architecture]([./img/main_arch.png](https://github.com/user-attachments/assets/e75bc24b-2691-4a46-b413-d879fa91df4d))
 
 This framework consists of two layers: a DAG-based shard layer and a global layer built on the main blockchain.
 
