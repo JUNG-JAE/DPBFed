@@ -1,16 +1,16 @@
 # DAG-Based Blockchain Sharding for Secure Federated Learning with Non-IID Data
 
-## Abstract
+## Overview
 Federated learning allows multiple clients to train a shared model without exposing raw data, which makes it promising for privacy-sensitive and distributed environments. In practice, however, its reliability is limited by two major issues: strongly non-IID local data and vulnerability to malicious updates injected by adversarial participants. This becomes even more challenging when the system cannot depend on a fully trusted central aggregator. To address these problems, this repository provides an implementation of a hierarchical blockchain-based federated learning framework. The framework is designed to support asynchronous training settings while improving robustness against poisoning attacks under heterogeneous data distributions.
 
 **[Access the research paper](https://www.mdpi.com/1424-8220/22/21/8263)**
 
-## Key Contributions
+### Key Contributions
 - Introduces a hierarchical two-layer aggregation design that separates shard-level model integration from global aggregation, reducing dependence on a single trusted coordinator.
 - Proposes a DAG-based selection mechanism that considers local performance, model similarity, and structural diversity to make malicious updates less influential.
 - Demonstrates stable learning behavior under severe non-IID conditions and poisoning attacks, including scenarios with a high fraction of malicious participants.
 
-## Overview Architecture
+### Architecture
 
 ![Overview Architecture](https://github.com/user-attachments/assets/00fb7aa0-2877-42b0-b961-a2aae8380864)
 
@@ -42,7 +42,7 @@ The uploaded code is a simplified version of the experimental simulator used in 
 - **shard**: implements the DAG-based shard structure and local shard behavior.
 - **voting_contract**: contains the code for Ethereum-based voting.
 
-## How to Run
+### How to Run
 
 ```bash
 cd DAG_Blockchain_FL
