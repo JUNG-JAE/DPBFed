@@ -1,0 +1,598 @@
+{
+  "contractName": "GlobalAggregation",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_totalShards",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_alphaNumerator",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_alphaDenominator",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "sessionId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "votingOrder",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "candidateCount",
+          "type": "uint256"
+        }
+      ],
+      "name": "VotingSessionCreated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "sessionId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "member",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "shardId",
+          "type": "uint256"
+        }
+      ],
+      "name": "CommitteeMemberAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "sessionId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "voter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "candidateIndex",
+          "type": "uint256"
+        }
+      ],
+      "name": "VoteCast",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "sessionId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "electedIndex",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "electedModelHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "VotingFinalized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "votingOrder",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "modelHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "IntermediateModelSaved",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSessions",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "currentRound",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalShards",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "mitigateParams",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "alphaNumerator",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "alphaDenominator",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "votingSessions",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "sessionId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "votingOrder",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalVotes",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "electedIndex",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "finalized",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "createdAt",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_round",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_shardA",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_shardB",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_candidateHashes",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "string[]",
+          "name": "_candidateNames",
+          "type": "string[]"
+        }
+      ],
+      "name": "createFirstVotingSession",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_round",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_votingOrder",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_newShardId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_candidateHashes",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "string[]",
+          "name": "_candidateNames",
+          "type": "string[]"
+        }
+      ],
+      "name": "createSubsequentVotingSession",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_sessionId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_member",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_shardId",
+          "type": "uint256"
+        }
+      ],
+      "name": "addCommitteeMember",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_sessionId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_candidateIndex",
+          "type": "uint256"
+        }
+      ],
+      "name": "castVote",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_sessionId",
+          "type": "uint256"
+        }
+      ],
+      "name": "finalizeVoting",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_alphaNumerator",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_alphaDenominator",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateMitigateParams",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_round",
+          "type": "uint256"
+        }
+      ],
+      "name": "setRound",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_sessionId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSessionCandidates",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_sessionId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSessionCandidateNames",
+      "outputs": [
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_sessionId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSessionVoteCounts",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_round",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRoundVotingCommittee",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_sessionId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getElectedModelHash",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_round",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_votingOrder",
+          "type": "uint256"
+        }
+      ],
+      "name": "getIntermediateModel",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_sessionId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSessionMembers",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.15+commit.e14f2714\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/GlobalAggregation.sol\":\"GlobalAggregation\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/GlobalAggregation.sol\":{\"keccak256\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"license\":\"GPL-3.0\",\"urls\":[\"bzz-raw://0000000000000000000000000000000000000000000000000000000000000000\",\"dweb:/ipfs/0000000000000000000000000000000000000000000000000000000000000000\"]}},\"version\":1}",
+  "bytecode": "",
+  "deployedBytecode": "",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "",
+  "sourcePath": "contracts/GlobalAggregation.sol",
+  "ast": {
+    "nodeType": "SourceUnit"
+  },
+  "legacyAST": {
+    "nodeType": "SourceUnit"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.15+commit.e14f2714"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.4",
+  "updatedAt": "2026-03-30T00:00:00.000Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

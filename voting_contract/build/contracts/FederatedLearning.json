@@ -1,0 +1,544 @@
+{
+  "contractName": "FederatedLearning",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_totalShards",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_alphaNumerator",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_alphaDenominator",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "RoundStarted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "shardId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "modelHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ShardModelReceived",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        }
+      ],
+      "name": "AllShardModelsReceived",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        }
+      ],
+      "name": "VotingPhaseStarted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "globalModelHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "AggregationCompleted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        }
+      ],
+      "name": "MigrationPhaseStarted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "RoundCompleted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "shardManager",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "modelRegistry",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "globalAggregation",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "nodeMigration",
+          "type": "address"
+        }
+      ],
+      "name": "SubContractsDeployed",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "shardManager",
+      "outputs": [
+        {
+          "internalType": "contract ShardManager",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "modelRegistry",
+      "outputs": [
+        {
+          "internalType": "contract ModelRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "globalAggregation",
+      "outputs": [
+        {
+          "internalType": "contract GlobalAggregation",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nodeMigration",
+      "outputs": [
+        {
+          "internalType": "contract NodeMigration",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "currentRound",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalShards",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "rounds",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "roundNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum FederatedLearning.RoundState",
+          "name": "state",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "uploadedShardCount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalVotingSessions",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "finalGlobalModelHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "endTime",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "startNewRound",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "beginShardModelUpload",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_shardId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_modelHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_cumulativeWeight",
+          "type": "uint256"
+        }
+      ],
+      "name": "receiveShardModel",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "beginVotingPhase",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_globalModelHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "completeAggregation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "beginMigrationPhase",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "completeRound",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_globalModelHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "completeRoundOneAggregation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCurrentRoundInfo",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "roundNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum FederatedLearning.RoundState",
+          "name": "state",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "uploadedShardCount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalVotingSessions",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "finalGlobalModelHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "endTime",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getSubContractAddresses",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "shardManagerAddr",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "modelRegistryAddr",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "globalAggregationAddr",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "nodeMigrationAddr",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_round",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRoundState",
+      "outputs": [
+        {
+          "internalType": "enum FederatedLearning.RoundState",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_round",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRoundFinalModel",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.15+commit.e14f2714\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/FederatedLearning.sol\":\"FederatedLearning\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/FederatedLearning.sol\":{\"keccak256\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"license\":\"GPL-3.0\",\"urls\":[\"bzz-raw://0000000000000000000000000000000000000000000000000000000000000000\",\"dweb:/ipfs/0000000000000000000000000000000000000000000000000000000000000000\"]}},\"version\":1}",
+  "bytecode": "",
+  "deployedBytecode": "",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "",
+  "sourcePath": "contracts/FederatedLearning.sol",
+  "ast": {
+    "nodeType": "SourceUnit"
+  },
+  "legacyAST": {
+    "nodeType": "SourceUnit"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.15+commit.e14f2714"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.4",
+  "updatedAt": "2026-03-30T00:00:00.000Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
