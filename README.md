@@ -12,17 +12,18 @@ Federated learning allows multiple clients to train a shared model without expos
 
 ## Overview Architecture
 
-![Overview Architecture]([./img/main_arch.png](https://github.com/user-attachments/assets/e75bc24b-2691-4a46-b413-d879fa91df4d))
-
-![main_arch](https://github.com/user-attachments/assets/00fb7aa0-2877-42b0-b961-a2aae8380864)
+![Overview Architecture](https://github.com/user-attachments/assets/00fb7aa0-2877-42b0-b961-a2aae8380864)
 
 This framework consists of two layers: a DAG-based shard layer and a global layer built on the main blockchain.
 
 ## Performance under Poisoning Attacks
 
+
+
+
 | Model Poisoning | Data Poisoning | Label-Swapping |
 |---|---|---|
-| ![Model Poisoning Accuracy](./img/model_poisoning_Acc.png) | ![Data Poisoning Accuracy](./img/data_poisoning_attack_Acc.png) | ![Label Swapping Accuracy](./img/label_swap_attack_Acc.png) |
+| ![Model Poisoning Accuracy](https://github.com/user-attachments/assets/d8b90c7b-7c32-485f-85af-0f98ee621bd5) | ![Data Poisoning Accuracy](https://github.com/user-attachments/assets/9e24dbde-eea3-499e-8409-73aaa81d9b74) | ![Label Swapping Accuracy](https://github.com/user-attachments/assets/452533ff-879b-4118-9465-ef3423f07330) |
 | **Accuracy** | **Accuracy** | **Accuracy** |
 | ![Model Poisoning RSR](./img/model_poisoning_RSR.png) | ![Data Poisoning RSR](./img/data_poisoning_attack_RSR.png) | ![Label Swapping RSR](./img/label_swap_attack_RSR.png) |
 | **RSR** | **RSR** | **RSR** |
