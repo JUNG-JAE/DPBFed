@@ -18,14 +18,11 @@ This framework consists of two layers: a DAG-based shard layer and a global laye
 
 ## Performance under Poisoning Attacks
 
-
-
-
 | Model Poisoning | Data Poisoning | Label-Swapping |
 |---|---|---|
 | ![Model Poisoning Accuracy](https://github.com/user-attachments/assets/d8b90c7b-7c32-485f-85af-0f98ee621bd5) | ![Data Poisoning Accuracy](https://github.com/user-attachments/assets/9e24dbde-eea3-499e-8409-73aaa81d9b74) | ![Label Swapping Accuracy](https://github.com/user-attachments/assets/452533ff-879b-4118-9465-ef3423f07330) |
 | **Accuracy** | **Accuracy** | **Accuracy** |
-| ![Model Poisoning RSR](./img/model_poisoning_RSR.png) | ![Data Poisoning RSR](./img/data_poisoning_attack_RSR.png) | ![Label Swapping RSR](./img/label_swap_attack_RSR.png) |
+| ![Model Poisoning RSR](https://github.com/user-attachments/assets/dfc883fd-4c09-4b01-b79b-8c8ef289f221) | ![Data Poisoning RSR](https://github.com/user-attachments/assets/d08a6dcd-a758-423c-a4ec-aa0e9ab66767) | ![Label Swapping RSR](https://github.com/user-attachments/assets/16e3fd39-1fe7-4676-bb41-aca2fd09a044) |
 | **RSR** | **RSR** | **RSR** |
 
 ### Attack Settings
